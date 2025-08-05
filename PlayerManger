@@ -1,0 +1,33 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerManger : MonoBehaviour
+{
+    InputManger inputManger;
+    CameraManager cameraManager;
+    PlayerLocomotion playerLocomotion;
+
+    private void Awake()
+    {
+        inputManger = GetComponent<InputManger>();
+        cameraManager = FindAnyObjectByType<CameraManager>();
+        playerLocomotion = GetComponent<PlayerLocomotion>();
+    }
+
+    private void Update()
+    {
+
+        inputManger.HandleAllInputs();
+    }
+
+    private void FixedUpdate()
+    {
+        playerLocomotion.HandleAllMovement();
+    }
+
+    private void LateUpdate()
+    {
+        cameraManager.HandleAllCameraMovement();
+    }
+}
