@@ -1,0 +1,82 @@
+ using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class InputManger : MonoBehaviour
+{
+    PlayerController playerController;
+    PlayerLocomotion playerLocomotion;
+    AnimatorManager animatorManager;
+
+    public Vector2 MovmentInput;
+    public Vector2 cameraInput;
+
+    public float cameraInputX;
+    public float cameraInputY;
+
+    public float moveAmount;
+    public float VerticalInput;
+    public float HorizontalInput;
+
+    public bool b_Input;
+
+
+    private void Awake()
+    {
+        animatorManager = GetComponent<AnimatorManager>();
+        playerLocomotion = GetComponent<PlayerLocomotion>();
+    }
+    private void OnEnable()
+    {
+        if (playerController == null)
+        {
+
+
+            //input system بالتحكم Vector2 MovmentInput نربط 
+            playerController = new PlayerController();
+            playerController.PlayerMovment.Movment.performed += i => MovmentInput = i.ReadValue<Vector2>();
+            playerController.PlayerMovment.Camera.performed += i => cameraInput = i.ReadValue<Vector2>();
+
+            playerController.PlayerActions.B.performed += i => b_Input = true;
+            playerController.PlayerActions.B.canceled += i => b_Input = false;
+        }
+
+        playerController.Enable();
+    }
+
+
+    private void OnDisable()
+    {
+        playerController.Disable();
+    }
+
+    public void HandleAllInputs()
+    {
+        HandleMovementInput();
+        HandleSprintingInput();
+    }
+
+    public void HandleMovementInput()
+    {
+        VerticalInput = MovmentInput.y;
+        HorizontalInput = MovmentInput.x;
+
+        cameraInputY = cameraInput.y;
+        cameraInputX = cameraInput.x;
+
+        moveAmount = Mathf.Clamp01(Mathf.Abs(HorizontalInput) + Mathf.Abs(VerticalInput));
+        animatorManager.UpdateAnimatorValues(0, moveAmount, playerLocomotion.isSpriting);
+    }
+
+    public void HandleSprintingInput()
+    {
+        if (b_Input && moveAmount > 0.5f)
+        {
+            playerLocomotion.isSpriting = true;
+        }
+        else
+        {
+            playerLocomotion.isSpriting = false;
+        }
+    }
+}
